@@ -1,0 +1,185 @@
+
+## 一、DBCipherHelper 用法示例
+
+### 1. 创建/初始化数据库
+
+```java
+// 1. 构造数据库配置（推荐使用 DatabaseConfig）
+DatabaseConfig config = new DatabaseConfig.Builder()
+    .setDatabaseName("game.db")
+    .setPassword("your_password")
+    .setVersion(1)
+    .addTableSchema("user", "id INTEGER PRIMARY KEY, name TEXT, score INTEGER")
+    .build();
+
+// 2. 创建 DBCipherHelper 实例
+DBCipherHelper dbHelper = new DBCipherHelper(context, config);
+
+// 3. 连接数据库（自动建表）
+SQLiteDatabase db = dbHelper.connectWithConfig(config);
+
+// 4. 可选：设置日志回调，方便调试
+dbHelper.setLogCallback(new DBCipherHelper.LogCallback() {
+    @Override
+    public void onLog(int level, String tag, String message, Throwable throwable) {
+        Log.d(tag, message, throwable);
+    }
+});
+
+// 5. 可选：监听连接状态
+dbHelper.setConnectCallback(new DBCipherHelper.ConnectCallback() {
+    @Override
+    public void onSuccess(SQLiteDatabase db) {
+        Log.i("DB", "连接成功！");
+    }
+    @Override
+    public void onFailed(Throwable throwable, String errorMsg) {
+        Log.e("DB", "连接失败：" + errorMsg, throwable);
+    }
+});
+```
+
+---
+
+### 2. 修改数据库密码
+
+```java
+boolean success = dbHelper.changePassword("old_password", "new_password");
+if (success) {
+    Log.i("DB", "密码修改成功");
+} else {
+    Log.e("DB", "密码修改失败");
+}
+```
+
+---
+
+### 3. 获取表结构信息
+
+```java
+List<Map<String, String>> tableInfo = dbHelper.getTableStructure(db, "user");
+for (Map<String, String> column : tableInfo) {
+    Log.i("Column", "字段：" + column.get("name") + " 类型：" + column.get("type"));
+}
+```
+
+---
+
+### 4. 删除数据库文件（及相关 WAL/SHM 文件）
+
+```java
+boolean deleted = dbHelper.deleteDatabase(context, "/data/data/your.package/databases/game.db");
+Log.i("DB", deleted ? "数据库删除成功" : "数据库删除失败");
+```
+
+---
+
+## 二、SqlUtilManager 用法示例
+
+假设你已经有一个 `DBCipherManager dbManager` 实例。
+
+### 1. ContentValues 与 JSON 互转
+
+```java
+// ContentValues 转 JSONObject
+ContentValues values = new ContentValues();
+values.put("name", "player1");
+values.put("score", 100);
+JSONObject json = SqlUtilManager.contentValuesToJson(values);
+
+// JSONObject 转 ContentValues
+ContentValues newValues = SqlUtilManager.jsonToContentValues(json);
+
+// JSON 字符串转 ContentValues
+String jsonString = "{\"name\":\"player1\",\"score\":100}";
+ContentValues parsedValues = SqlUtilManager.jsonToContentValues(jsonString);
+```
+
+---
+
+### 2. PBKDF2 密钥派生（用于生成加密密钥）
+
+```java
+byte[] key = SqlUtilManager.deriveEncryptionKey("username", "clientSecret", "serverToken");
+// 可作为 SQLCipher 的密码输入
+```
+
+---
+
+### 3. 导出数据库为 JSON
+
+```java
+SqlUtilManager utilManager = dbManager.getSqlUtilManager();
+JSONObject dbJson = utilManager.exportDatabaseToJson();
+// JSON 格式保存到文件或上传服务器
+```
+
+---
+
+### 4. 导出单表数据为 JSON
+
+```java
+Object tableData = utilManager.exportTableToJson("user");
+// tableData 可为 JSONObject（单行）或 JSONArray（多行）
+```
+
+---
+
+### 5. 导入数据库（从 JSON 数据恢复）
+
+```java
+int tablesImported = utilManager.importDatabaseFromJson(dbJson, true); // true: 导入前先清空表
+Log.i("Import", "导入表数量：" + tablesImported);
+```
+
+---
+
+### 6. 导入单表数据
+
+```java
+// JSON 格式的表数据，可以是 JSONObject 或 JSONArray
+Object userTableData = ...; // 例如 utilManager.exportTableToJson("user")
+boolean success = utilManager.importDatabaseFromJson(new JSONObject().put("tables", new JSONObject().put("user", userTableData)), true) > 0;
+Log.i("Import", success ? "表数据导入成功" : "表数据导入失败");
+```
+
+---
+
+## 三、常见场景整合示例
+
+**数据库备份与恢复**
+
+```java
+// 备份
+JSONObject backupJson = utilManager.exportDatabaseToJson();
+// ...保存 backupJson 到本地或云端
+
+// 恢复
+utilManager.importDatabaseFromJson(backupJson, true);
+```
+
+**加密安全存储**
+
+```java
+byte[] encryptionKey = SqlUtilManager.deriveEncryptionKey("playerName", "clientSecret", "serverToken");
+DatabaseConfig config = new DatabaseConfig.Builder()
+    .setDatabaseName("secure.db")
+    .setPassword(encryptionKey)
+    .build();
+DBCipherHelper dbHelper = new DBCipherHelper(context, config);
+```
+
+---
+
+## 总结
+
+- **DBCipherHelper** 负责数据库连接、建表、密码修改、表结构查询、物理删除等底层操作。
+- **SqlUtilManager** 负责数据库数据的 JSON 化、批量导入导出、密钥派生、安全转换等工具功能。
+
+配合 [DBCipherManager](https://github.com/706412584/sqlcipherManager) 作为核心入口，能实现安全、灵活、易维护的本地数据管理。
+
+如需更详细示例，可查阅项目 [示例代码](https://github.com/706412584/sqlcipherManager) 或提交 Issue 交流！
+
+---
+
+如需补充 TableManager 或 DBCipherManager 的使用方法，欢迎继续提问。
