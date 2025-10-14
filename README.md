@@ -194,7 +194,7 @@ DBCipherManager.setLogCallback(new DBCipherManager.LogCallback() {
 
 ---
 
-由游戏开发团队荣誉出品并持续维护。
+由橙子游戏开发团队荣誉出品并持续维护。
 
 ---
 
