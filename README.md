@@ -25,6 +25,14 @@ dependencies {
     implementation 'net.zetetic:android-database-sqlcipher:4.5.0'
 }
 ```
+在项目 `build.gradle OR setting.gradle` 中添加仓库：
+
+```gradle
+repositories {
+    maven{url 'https://jitpack.io'}
+}
+```
+
 
 **手动集成：**  
 下载源码后，将 `core` 包复制到您的 Android 项目中。
