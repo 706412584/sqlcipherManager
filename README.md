@@ -180,6 +180,9 @@ DBCipherManager.setLogCallback(new DBCipherManager.LogCallback() {
 
 ---
 
+##DBCipherManager类详细用法
+[`点击查看`(doc1)]
+
 ## ❓ 有问题怎么办？
 
 如有疑问或发现 Bug，欢迎提交 Issue！  
