@@ -180,8 +180,7 @@ DBCipherManager.setLogCallback(new DBCipherManager.LogCallback() {
 
 ---
 
-##DBCipherManager类
-`[详细用法](docs/DBCipherManager.MD)`
+##DBCipherManager类[详细用法](docs/DBCipherManager.MD)
 
 ## ❓ 有问题怎么办？
 
