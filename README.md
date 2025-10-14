@@ -206,7 +206,7 @@ DBCipherManager.setLogCallback(new DBCipherManager.LogCallback() {
 ---
 
 由橙子游戏开发团队荣誉出品并持续维护。
-
+[![](https://jitpack.io/v/706412584/sqlcipherManager.svg)](https://jitpack.io/#706412584/sqlcipherManager)
 ---
 
 如需更多帮助，请查阅开发文档或联系作者 QQ706412584。
