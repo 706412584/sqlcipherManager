@@ -1,18 +1,18 @@
 package game.core;
 
-import android.util.Log;
+import android.content.ContentValues;
+import android.database.SQLException;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.database.SQLException;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import android.content.ContentValues;
-import java.io.File;
 public class TableManager {
 	private static final String TAG = "TableManager";
 	private final DBCipherManager dbManager;
@@ -512,8 +512,15 @@ public class TableManager {
 			try {
 				cursor = db.rawQuery("PRAGMA table_info(" + tableName + ")", null);
 				while (cursor != null && cursor.moveToNext()) {
-					columns.add(cursor.getString(cursor.getColumnIndex("name")));
-				}
+                    int columnIndex = cursor.getColumnIndex("name");
+                    if (columnIndex >= 0) {
+                        columns.add(cursor.getString(columnIndex));
+                    } else {
+                        // 处理列不存在的情况，如记录日志
+                        log(DBCipherManager.LogLevel.WARN, "列 'name' 不存在", null);
+                    }
+
+                }
 				return columns;
 			} finally {
 				if (cursor != null) cursor.close();

@@ -1,22 +1,19 @@
 package game.core;
 
-import java.lang.*;
 import android.content.Context;
-import android.util.Log;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
+import android.util.Log;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
-import java.util.Map;
+
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import org.json.*;
-import android.database.sqlite.SQLiteException;
-import android.util.Base64;
-import java.io.File;
+import java.util.Map;
 
 public class DBCipherHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DatabaseHelper";
@@ -265,8 +262,14 @@ public class DBCipherHelper extends SQLiteOpenHelper {
 			cursor = db.rawQuery("PRAGMA table_info(" + tableName + ")", null);
 			
 			while (cursor != null && cursor.moveToNext()) {
-				String columnName = cursor.getString(cursor.getColumnIndex("name"));
-				columns.add(columnName);
+                int columnIndex = cursor.getColumnIndex("name");
+                if (columnIndex >= 0) {
+                    String columnName = cursor.getString(columnIndex);
+                    columns.add(columnName);
+                } else {
+                    // 处理列不存在的情况，如记录日志或使用默认值
+                    log(Log.WARN, "列 'name' 不存在",null);
+                }
 			}
 		} catch (Exception e) {
 			log(Log.ERROR, "获取表列信息失败: " + tableName, e);
