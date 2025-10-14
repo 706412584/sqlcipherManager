@@ -212,5 +212,3 @@ DBCipherManager.setLogCallback(new DBCipherManager.LogCallback() {
 如需更多帮助，请查阅开发文档或联系作者 QQ706412584。
 
 ---
-
-这样优化后文档更加清晰易读，突出亮点，也更适合开源项目主页展示。
