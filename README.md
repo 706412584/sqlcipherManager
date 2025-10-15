@@ -1,5 +1,5 @@
 # GameCore Database Framework / 适用于单机游戏核心数据库框架
-
+## Table of Contents
 高效、安全、强扩展性的 Android 数据库解决方案。  
 开箱即用，支持 SQLCipher 加密，适用于游戏数据存储、本地缓存、敏感信息保护等场景。
 
