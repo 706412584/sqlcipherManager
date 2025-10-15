@@ -21,7 +21,7 @@
 
 ```gradle
 dependencies {
-    implementation 'com.github.706412584:sqlcipherManager:v版本号'
+    implementation 'com.github.706412584:sqlcipherManager:v1.0.6'
     implementation 'net.zetetic:android-database-sqlcipher:4.5.0'
 }
 ```
