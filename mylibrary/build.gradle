@@ -1,0 +1,111 @@
+/**
+ * 配置Android库项目的插件依赖
+ * 包含Android库构建插件和Maven发布插件
+ */
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+
+}
+
+/**
+ * Android项目配置块
+ * 配置命名空间、编译SDK版本、发布配置、默认配置、构建类型和编译选项
+ */
+android {
+    // 设置项目的命名空间
+    namespace 'game.core'
+    // 设置编译SDK版本为36
+    compileSdk 36
+
+    /**
+     * 配置发布相关的变体设置
+     * 指定发布单个变体并包含源码和文档jar包
+     */
+    publishing {
+        singleVariant("release") {
+            // 添加源码jar包到发布产物
+            withSourcesJar()
+            // 添加JavaDoc jar包到发布产物
+            withJavadocJar()
+        }
+    }
+
+    /**
+     * 默认配置块
+     * 设置最小SDK版本、测试运行器和消费者混淆规则文件
+     */
+    defaultConfig {
+        // 设置最低支持的SDK版本为31
+        minSdk 26
+
+        // 配置仪器化测试运行器
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // 指定消费者使用的ProGuard规则文件
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    /**
+     * 构建类型配置
+     * 定义release构建类型的混淆和优化设置
+     */
+    buildTypes {
+        release {
+            // 禁用代码混淆
+            minifyEnabled false
+            // 配置ProGuard混淆规则文件
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    /**
+     * Java编译选项配置
+     * 设置源码和目标兼容性版本
+     */
+    compileOptions {
+        // 设置Java源码兼容性为版本11
+        sourceCompatibility JavaVersion.VERSION_11
+        // 设置Java目标兼容性为版本11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
+
+/**
+ * Maven发布配置块
+ * 配置发布的出版物信息，包括groupId、artifactId和version
+ */
+publishing {
+    publications {
+        release(MavenPublication) {
+            // 设置Maven groupId
+            groupId = 'com.github.706412584'
+            // 设置Maven artifactId
+            artifactId = 'gamesavemanager'
+            // 设置版本号
+            version = '1.0.0'
+
+            /**
+             * 在评估完成后配置组件来源
+             * 确保在所有配置完成后再设置发布组件
+             */
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+}
+
+/**
+ * 项目依赖配置块
+ * 声明项目所需的第三方库依赖
+ */
+dependencies {
+
+    // SQLCipher数据库加密库
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.4'
+    implementation 'androidx.sqlite:sqlite:2.2.0'
+    implementation 'androidx.sqlite:sqlite-ktx:2.2.0'
+
+
+}
+
