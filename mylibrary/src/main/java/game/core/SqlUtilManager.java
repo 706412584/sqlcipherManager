@@ -8,17 +8,18 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
 * SQL工具管理器 - 提供JSON转换和数据导入导出功能
@@ -30,8 +31,262 @@ public class SqlUtilManager {
 	private final TableManager mTableManager;
 	public SqlUtilManager(DBCipherManager dbManager) {
 		this.dbManager = dbManager;
-        this.mTableManager=dbManager.getTableManager();
+		this.mTableManager=dbManager.getTableManager();
 	}
+	
+	// ==================== 流式导出功能 ====================
+	
+	/**
+	* 流式导出整个数据库到JSON格式
+	* @param writer 输出写入器
+	* @param progressListener 进度监听器（可选）
+	* @return 是否成功导出
+	*/
+	public boolean exportDatabaseToJsonStream(Writer writer, ExportProgressListener progressListener) {
+		return dbManager.executeWithConnection(db -> {
+			log(DBCipherManager.LogLevel.INFO, "开始流式导出整个数据库为JSON格式", null);
+			
+			try {
+				if (db == null || !db.isOpen()) {
+					log(DBCipherManager.LogLevel.ERROR, "数据库连接未成功建立", null);
+					return false;
+				}
+				
+				List<String> tableNames = getAllTableNames(db);
+				int totalTables = tableNames.size();
+				
+				// 开始写入JSON对象
+				writer.write("{");
+				
+				// 写入元数据
+				writer.write("\"database_name\":\"" + escapeJsonString(dbManager.getDatabaseName()) + "\",");
+				writer.write("\"export_time\":" + System.currentTimeMillis() + ",");
+				writer.write("\"table_count\":" + totalTables + ",");
+				writer.write("\"tables\":{");
+				
+				// 导出每个表
+				int tableIndex = 0;
+				for (String tableName : tableNames) {
+					if (progressListener != null) {
+						progressListener.onTableStart(tableName, tableIndex, totalTables);
+					}
+					
+					log(DBCipherManager.LogLevel.DEBUG, "正在流式导出表: " + tableName, null);
+					
+					// 写入表名
+					writer.write("\"" + escapeJsonString(tableName) + "\":");
+					
+					// 导出表数据
+					boolean success = exportTableToJsonStream(db, tableName, writer, progressListener);
+					
+					if (!success) {
+						log(DBCipherManager.LogLevel.ERROR, "导出表失败: " + tableName, null);
+						return false;
+					}
+					
+					// 如果不是最后一个表，添加逗号
+					if (tableIndex < totalTables - 1) {
+						writer.write(",");
+					}
+					
+					if (progressListener != null) {
+						progressListener.onTableComplete(tableName, tableIndex, totalTables);
+					}
+					
+					tableIndex++;
+				}
+				
+				// 结束JSON对象
+				writer.write("}}");
+				writer.flush();
+				
+				log(DBCipherManager.LogLevel.INFO, "数据库流式导出完成，共导出 " + totalTables + " 个表", null);
+				return true;
+				
+			} catch (Exception e) {
+				log(DBCipherManager.LogLevel.ERROR, "流式导出整个数据库为JSON时发生异常", e);
+				return false;
+			}
+		});
+	}
+	
+	/**
+	* 流式导出单个表的数据
+	* @param db 数据库连接
+	* @param tableName 表名
+	* @param writer 输出写入器
+	* @param progressListener 进度监听器
+	* @return 是否成功导出
+	*/
+	private boolean exportTableToJsonStream(SQLiteDatabase db, String tableName, Writer writer,
+	ExportProgressListener progressListener) {
+		Cursor cursor = null;
+		
+		try {
+			// 获取表结构信息
+			List<Map<String, String>> tableStructure = mTableManager.getTableStructure(tableName);
+			int columnCount = tableStructure.size();
+			
+			cursor = db.query(tableName, null, null, null, null, null, null);
+			
+			if (cursor != null) {
+				int rowCount = cursor.getCount();
+				String[] columnNames = cursor.getColumnNames();
+				
+				if (progressListener != null) {
+					progressListener.onTableSizeDetermined(tableName, rowCount);
+				}
+				
+				// 单行单列：直接写入单个值
+				if (rowCount == 1 && columnCount == 1) {
+					cursor.moveToFirst();
+					Object value = getValueFromCursor(cursor, 0);
+					writeJsonValue(writer, value);
+				}
+				// 单行多列：写入JSONObject
+				else if (rowCount == 1 && columnCount > 1) {
+					cursor.moveToFirst();
+					writer.write("{");
+					for (int i = 0; i < columnNames.length; i++) {
+						if (i > 0) writer.write(",");
+						writer.write("\"" + escapeJsonString(columnNames[i]) + "\":");
+						writeJsonValue(writer, getValueFromCursor(cursor, i));
+					}
+					writer.write("}");
+				}
+				// 多行：写入JSONArray
+				else {
+					writer.write("[");
+					int rowIndex = 0;
+					while (cursor.moveToNext()) {
+						if (rowIndex > 0) writer.write(",");
+						
+						// 单列：直接写入值
+						if (columnCount == 1) {
+							writeJsonValue(writer, getValueFromCursor(cursor, 0));
+						}
+						// 多列：写入JSONObject
+						else {
+							writer.write("{");
+							for (int i = 0; i < columnNames.length; i++) {
+								if (i > 0) writer.write(",");
+								writer.write("\"" + escapeJsonString(columnNames[i]) + "\":");
+								writeJsonValue(writer, getValueFromCursor(cursor, i));
+							}
+							writer.write("}");
+						}
+						
+						if (progressListener != null) {
+							progressListener.onRowProcessed(tableName, rowIndex, rowCount);
+						}
+						
+						rowIndex++;
+					}
+					writer.write("]");
+				}
+			}
+			
+			log(DBCipherManager.LogLevel.DEBUG, "表 '" + tableName + "' 数据流式导出完成", null);
+			return true;
+			
+		} catch (Exception e) {
+			log(DBCipherManager.LogLevel.ERROR, "流式导出表 '" + tableName + "' 为JSON时发生异常", e);
+			return false;
+		} finally {
+			if (cursor != null) cursor.close();
+		}
+	}
+	
+	/**
+	* 将值写入JSON流
+	* @param writer 输出写入器
+	* @param value 要写入的值
+	* @throws IOException 如果写入失败
+	*/
+	private void writeJsonValue(Writer writer, Object value) throws IOException {
+		if (value == null || value == JSONObject.NULL) {
+			writer.write("null");
+		} else if (value instanceof String) {
+			writer.write("\"" + escapeJsonString((String) value) + "\"");
+		} else if (value instanceof Number) {
+			writer.write(value.toString());
+		} else if (value instanceof Boolean) {
+			writer.write(value.toString());
+		} else if (value instanceof byte[]) {
+			String base64 = Base64.encodeToString((byte[]) value, Base64.DEFAULT);
+			writer.write("\"" + escapeJsonString(base64) + "\"");
+		} else {
+			writer.write("\"" + escapeJsonString(value.toString()) + "\"");
+		}
+	}
+	
+	/**
+	* 转义JSON字符串中的特殊字符
+	* @param input 原始字符串
+	* @return 转义后的字符串
+	*/
+	private String escapeJsonString(String input) {
+		if (input == null) return "";
+		
+		StringBuilder sb = new StringBuilder();
+		for (char c : input.toCharArray()) {
+			switch (c) {
+				case '"': sb.append("\\\""); break;
+				case '\\': sb.append("\\\\"); break;
+				case '\b': sb.append("\\b"); break;
+				case '\f': sb.append("\\f"); break;
+				case '\n': sb.append("\\n"); break;
+				case '\r': sb.append("\\r"); break;
+				case '\t': sb.append("\\t"); break;
+				default:
+				if (c <= '\u001F' || c == '\u007F' || (c >= '\u0080' && c <= '\u009F')) {
+					sb.append(String.format("\\u%04x", (int) c));
+				} else {
+					sb.append(c);
+				}
+			}
+		}
+		return sb.toString();
+	}
+	
+	// ==================== 进度监听接口 ====================
+	
+	/**
+	* 导出进度监听器接口
+	*/
+	public interface ExportProgressListener {
+		/**
+		* 开始处理表时调用
+		* @param tableName 表名
+		* @param tableIndex 表索引
+		* @param totalTables 总表数
+		*/
+		void onTableStart(String tableName, int tableIndex, int totalTables);
+		
+		/**
+		* 确定表大小后调用
+		* @param tableName 表名
+		* @param rowCount 行数
+		*/
+		void onTableSizeDetermined(String tableName, int rowCount);
+		
+		/**
+		* 处理完一行数据后调用
+		* @param tableName 表名
+		* @param rowIndex 行索引
+		* @param totalRows 总行数
+		*/
+		void onRowProcessed(String tableName, int rowIndex, int totalRows);
+		
+		/**
+		* 完成表处理时调用
+		* @param tableName 表名
+		* @param tableIndex 表索引
+		* @param totalTables 总表数
+		*/
+		void onTableComplete(String tableName, int tableIndex, int totalTables);
+	}
+	
 	
 	// ==================== 密钥派生方法 ====================
 	
