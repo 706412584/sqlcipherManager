@@ -16,7 +16,6 @@ import game.core.SqlUtilManager;
 /**
 * 属性管理器 - 集成内存缓存加解密功能
 * 支持数值操作安全、缓存加密存储、数据解密读取
-* 同时保持原有PropertyManager的所有功能
 */
 public class PropertyManager {
 	private final DBCipherManager dbManager;
