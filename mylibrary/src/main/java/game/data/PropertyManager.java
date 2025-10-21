@@ -16,7 +16,7 @@ import game.core.SqlUtilManager;
 /**
 * 属性管理器 - 集成内存缓存加解密功能
 * 支持数值操作安全、缓存加密存储、数据解密读取
-* 
+* 同时保持原有PropertyManager的所有功能
 */
 public class PropertyManager {
 	private final DBCipherManager dbManager;
@@ -232,7 +232,7 @@ public class PropertyManager {
 		// 特殊处理：当 value 是 ContentValues 或 JSONObject 时
 		if (value instanceof ContentValues || value instanceof JSONObject) {
 			// 对于"增加"、"减少"和"替换"操作调用结构化数据处理方法
-			if ("增加".equals(operation) || "减少".equals(operation) || "替换".equals(operation)) {
+			if ("增加".equals(operation) || "减少".equals(operation) || "替换".equals(operation)||"更新".equals(operation)) {
 				return handleStructuredDataOperation(tableName, property, operation, value, defaultValue, whereClause, whereArgs);
 			}
 		}
@@ -295,6 +295,7 @@ public class PropertyManager {
 					// 有记录，检查是否存在数量字段，存在则增加或减少数量
 					ContentValues updateValues = new ContentValues();
 					boolean hasQuantityField = false;
+					boolean insufficient = false; // 标记是否不足
 					
 					// 1. 获取现有记录
 					ContentValues existingData = dbManager.querySingle(tableName, whereClause, whereArgs);
@@ -316,6 +317,12 @@ public class PropertyManager {
 								if ("增加".equals(operation)) {
 									result = existing.add(operationValue);
 								} else { // "减少"
+									// 检查是否足够扣除
+									if (existing.compareTo(operationValue) < 0) {
+										insufficient = true;
+										// 跳过后续字段处理
+										break;
+									}
 									result = existing.subtract(operationValue);
 								}
 								
@@ -335,6 +342,15 @@ public class PropertyManager {
 						}
 					}
 					
+					// 如果发现不足，返回失败
+					if (insufficient) {
+						if (defaultValue instanceof Boolean) {
+							return (T) Boolean.FALSE;
+						} else {
+							return defaultValue;
+						}
+					}
+					
 					// 3. 执行更新
 					if (hasQuantityField) {
 						int updated = dbManager.updateData(tableName, updateValues, whereClause, whereArgs);
@@ -345,7 +361,7 @@ public class PropertyManager {
 						return (T) Boolean.valueOf(updated > 0);
 					}
 				}
-			} else if ("替换".equals(operation)) {
+			} else if ("替换".equals(operation)||"更新".equals(operation)) {
 				// 更新现有记录
 				int updated = dbManager.updateData(tableName, values, whereClause, whereArgs);
 				
@@ -366,6 +382,7 @@ public class PropertyManager {
 			return defaultValue;
 		}
 	}
+	
 	
 	
 	
