@@ -208,23 +208,27 @@ DBCipherManager.setLogCallback(new DBCipherManager.LogCallback() {
 
 ---
 
-## 📄 DBCipherManager类
+## 📄 DBCipherManager类-核心管理器
 查看[详细用法](docs/DBCipherManager.MD)
 
 
-## 📄 TableManager类
+## 📄 TableManager类-表格管理插件
 查看[详细用法](docs/TableManager.MD)
 
 
-## 📄 SqlUtilManager类
+## 📄 SqlUtilManager类-工具类插件
 查看[详细用法](docs/SqlUtilManager.MD)
 
-## 📄 DatabaseConfig类
+## 📄 DatabaseConfig类-数据库连接配置
 查看[详细用法](docs/DatabaseConfig.MD)
 
 
-## 📄 DBCipherHelper类
+## 📄 DBCipherHelper类-数据库帮助
 查看[详细用法](docs/DBCipherHelper.MD)
+
+## 📄 PropertyManager类-属性操作管理器(支持数值安全操作以及常见数据库操作)
+查看[详细用法](docs/PropertyManager.MD)
+
 
 ## ❓ 有问题怎么办？
 
