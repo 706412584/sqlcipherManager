@@ -355,6 +355,11 @@ public class PropertyManager {
 						int updated = dbManager.updateData(tableName, updateValues, whereClause, whereArgs);
 						return (T) Boolean.valueOf(updated > 0);
 					} else {
+                        if(count>0)
+                        {
+                        	//已有记录但是没有数值操作
+                        	return (T) Boolean.valueOf(false);
+                        }
 						// 没有数值字段，执行普通更新
 						int updated = dbManager.updateData(tableName, values, whereClause, whereArgs);
 						return (T) Boolean.valueOf(updated > 0);
