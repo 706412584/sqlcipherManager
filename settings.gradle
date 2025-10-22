@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GameSaveManager2"
+rootProject.name = "GameSaveManager"
 
 
 include ':mylibrary'
