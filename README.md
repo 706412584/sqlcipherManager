@@ -230,6 +230,15 @@ DBCipherManager.setLogCallback(new DBCipherManager.LogCallback() {
 查看[详细用法](docs/PropertyManager.MD)
 
 
+---
+
+## 下载 apkdemo（Android Demo 应用）
+
+你可以通过以下链接下载本项目的 Android 演示 APK：
+
+**[点击下载 apkdemo.apk](https://github.com/706412584/sqlcipherManager/releases/tag/apkdemo)**
+
+
 ## ❓ 有问题怎么办？
 
 如有疑问或发现 Bug，欢迎提交 Issue！  
