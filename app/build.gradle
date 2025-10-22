@@ -8,14 +8,21 @@ android {
 
     defaultConfig {
         applicationId "com.orange.gamesavemanager2"
-        minSdk 31
+        minSdk 26
         targetSdk 36
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    signingConfigs {
+        release {
+            storeFile file('smlieapp.jks')  // 签名文件路径
+            storePassword '123123'  // 密钥库密码
+            keyAlias 'smlieapp'            // 密钥别名
+            keyPassword '123123'      // 密钥密码
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -29,11 +36,16 @@ android {
 }
 
 dependencies {
-
+    // 添加mylibrary依赖
+    implementation project(':mylibrary')
+    
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.activity:activity:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.4'
+    implementation 'androidx.sqlite:sqlite:2.2.0'
+    implementation 'androidx.sqlite:sqlite-ktx:2.2.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

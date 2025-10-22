@@ -1,3 +1,65 @@
 <resources>
-    <string name="app_name">GameSaveManager2</string>
+    <string name="app_name">数据库DEMO演示</string>
+    
+    <!-- 主界面 -->
+    <string name="main_title">游戏存档管理器</string>
+    <string name="main_subtitle">演示数据库加密和管理功能</string>
+    <string name="btn_database_demo">数据库操作演示</string>
+    <string name="btn_table_management">表管理演示</string>
+    <string name="btn_data_export">数据导出演示</string>
+    <string name="btn_optimization">数据库优化</string>
+    
+    <!-- 菜单标题 -->
+    <string name="menu_table_management">表管理</string>
+    <string name="menu_data_export">数据导出</string>
+    <string name="menu_optimization">数据库优化</string>
+    
+    <!-- 数据库演示界面 -->
+    <string name="database_demo_title">数据库操作演示</string>
+    <string name="btn_create_database">创建数据库</string>
+    <string name="btn_create_table">创建表</string>
+    <string name="btn_insert_data">插入数据</string>
+    <string name="btn_query_data">查询数据</string>
+    <string name="btn_update_data">更新数据</string>
+    <string name="btn_delete_data">删除数据</string>
+    <string name="btn_export_json">导出JSON</string>
+    <string name="btn_import_json">导入JSON</string>
+    
+    <!-- 表管理演示界面 -->
+    <string name="table_management_title">表管理演示</string>
+    <string name="btn_add_column">添加字段</string>
+    <string name="btn_drop_table">删除表</string>
+    <string name="btn_truncate_table">清空表</string>
+    <string name="btn_show_tables">显示所有表</string>
+    
+    <!-- 数据导出演示界面 -->
+    <string name="data_export_title">数据导出演示</string>
+    <string name="btn_export_all">导出全部数据</string>
+    <string name="btn_export_table">导出单表</string>
+    <string name="btn_stream_export">流式导出</string>
+    
+    <!-- 数据库优化界面 -->
+    <string name="optimization_title">数据库优化</string>
+    <string name="btn_vacuum">执行VACUUM</string>
+    <string name="btn_rebuild_indexes">重建索引</string>
+    <string name="btn_health_check">健康检查</string>
+    <string name="btn_optimize_all">全面优化</string>
+    
+    <!-- 通用按钮 -->
+    <string name="btn_back">返回</string>
+    <string name="btn_clear_log">清空日志</string>
+    <string name="btn_copy_log">复制日志</string>
+    
+    <!-- 状态信息 -->
+    <string name="status_success">操作成功</string>
+    <string name="status_failed">操作失败</string>
+    <string name="status_loading">处理中...</string>
+    <string name="log_title">操作日志</string>
+    
+    <!-- 输入提示 -->
+    <string name="hint_database_name">数据库名称</string>
+    <string name="hint_password">密码</string>
+    <string name="hint_table_name">表名</string>
+    <string name="hint_column_name">字段名</string>
+    <string name="hint_column_type">字段类型</string>
 </resources>

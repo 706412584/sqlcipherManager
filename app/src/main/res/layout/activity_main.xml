@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <!-- 标题区域 -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_database"
+                android:layout_marginBottom="12dp"
+                android:contentDescription="@string/app_name" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/main_title"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_color"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/main_subtitle"
+                android:textSize="14sp"
+                android:textColor="@color/secondary_text_color"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 功能按钮区域 + 日志面板 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- 数据库操作演示 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_database_demo"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/btn_database_demo"
+            android:textSize="16sp"
+            android:drawableStart="@drawable/ic_database_white"
+            android:drawablePadding="12dp"
+            app:cornerRadius="8dp"
+            app:backgroundTint="@color/primary_color" />
+
+        <!-- 表管理演示 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_table_management"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/btn_table_management"
+            android:textSize="16sp"
+            android:drawableStart="@drawable/ic_table_white"
+            android:drawablePadding="12dp"
+            app:cornerRadius="8dp"
+            app:backgroundTint="@color/secondary_color" />
+
+        <!-- 数据导出演示 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_data_export"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/btn_data_export"
+            android:textSize="16sp"
+            android:drawableStart="@drawable/ic_export_white"
+            android:drawablePadding="12dp"
+            app:cornerRadius="8dp"
+            app:backgroundTint="@color/accent_color" />
+
+        <!-- 数据库优化 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_optimization"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/btn_optimization"
+            android:textSize="16sp"
+            android:drawableStart="@drawable/ic_settings_white"
+            android:drawablePadding="12dp"
+            app:cornerRadius="8dp"
+            app:backgroundTint="@color/tertiary_color" />
+
+        <!-- 高级表管理 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_advanced_table_mgmt"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:text="高级表管理"
+            android:textSize="16sp"
+            android:drawableStart="@drawable/ic_table_white"
+            android:drawablePadding="12dp"
+            app:cornerRadius="8dp"
+            app:backgroundTint="@color/primary_dark" />
+
+        <!-- 简易日志面板 -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/primary_light"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="运行日志"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary_text_color" />
+
+                    <Button
+                        android:id="@+id/btn_clear_main_log"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:text="清空"
+                        android:textSize="12sp"
+                        android:minHeight="0dp"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp" />
+
+                    <Button
+                        android:id="@+id/btn_view_log_file"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:text="完整日志"
+                        android:textSize="12sp"
+                        android:minHeight="0dp"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
+                        android:layout_marginLeft="8dp" />
+
+                </LinearLayout>
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_main_log"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="@color/primary_text_color"
+                        android:fontFamily="monospace" />
+                </ScrollView>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <!-- 底部信息 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="GameSaveManager2 Demo v1.0"
+        android:textSize="12sp"
+        android:textColor="@color/secondary_text_color"
+        android:gravity="center"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

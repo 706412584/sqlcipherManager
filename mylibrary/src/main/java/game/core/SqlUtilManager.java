@@ -590,6 +590,61 @@ public class SqlUtilManager {
 	// ==================== 数据导入功能 ====================
 	
 	/**
+	* 批量插入JSON数据到指定表
+	* @param tableName 表名
+	* @param jsonArray JSON数组数据
+	* @return 成功插入的记录数
+	*/
+	public int batchInsertDataWithJson(String tableName, JSONArray jsonArray) {
+		return dbManager.executeWithConnection(db -> {
+			log(DBCipherManager.LogLevel.INFO, "开始批量插入JSON数据到表: " + tableName, null);
+			
+			int insertedCount = 0;
+			
+			try {
+				if (jsonArray == null || jsonArray.length() == 0) {
+					log(DBCipherManager.LogLevel.WARN, "JSON数组为空，无需插入", null);
+					return 0;
+				}
+				
+				db.beginTransaction();
+				try {
+					for (int i = 0; i < jsonArray.length(); i++) {
+						Object rowData = jsonArray.get(i);
+						
+						if (rowData instanceof JSONObject) {
+							// 多列数据行
+							ContentValues values = jsonToContentValues((JSONObject) rowData);
+							long result = db.insert(tableName, null, values);
+							if (result != -1) {
+								insertedCount++;
+							}
+						} else {
+							// 单列数据行
+							ContentValues values = new ContentValues();
+							values.put(mTableManager.getFirstColumnName(db, tableName), rowData.toString());
+							long result = db.insert(tableName, null, values);
+							if (result != -1) {
+								insertedCount++;
+							}
+						}
+					}
+					db.setTransactionSuccessful();
+				} finally {
+					db.endTransaction();
+				}
+				
+				log(DBCipherManager.LogLevel.INFO, "批量插入完成，成功插入 " + insertedCount + " 条记录", null);
+				
+			} catch (Exception e) {
+				log(DBCipherManager.LogLevel.ERROR, "批量插入JSON数据失败", e);
+			}
+			
+			return insertedCount;
+		});
+	}
+	
+	/**
 	* 从JSON格式导入整个数据库
 	* @param jsonData JSON格式的数据库数据
 	* @param clearBeforeImport 是否在导入前清空表
